@@ -1,5 +1,5 @@
 import React,{useState} from 'react';
-import {Text,Buttons,View,StyleSheet} from 'react-native';
+import {Text,ScrollView,View,StyleSheet} from 'react-native';
 import SearchBar from '../components/searchBar';
 import ResultList from '../components/resultList';
 import useResults from '../hook/useResult';
@@ -16,15 +16,16 @@ const searchScreen = () => {
           return result.price === price;
         });
       };   
-
-    return <View>
+    //flex 1 to improve scrolling in small screened devices.
+    return <View style={{flex : 1}} > 
         <SearchBar
             term={term}
             onTermChange={setTerm}
             onTermSubmit={() => searchAPI(term)}
         />
         {error ? <Text>{error}</Text> : null} 
-        
+
+        <ScrollView>        
         <ResultList
             title = "Pocket Friendly"
             results = {filterByPrice('$')}
@@ -37,11 +38,17 @@ const searchScreen = () => {
             title = "Rain money"
             results = {filterByPrice('$$$')}
         />
+        <Text style={styles.space}>
+        </Text>
+        </ScrollView>
+
     </View>
 };
 
 const styles = StyleSheet.create({
-
+    space : {
+        height: 10
+    }
 });
 
 export default searchScreen;
