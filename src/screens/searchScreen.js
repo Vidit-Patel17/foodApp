@@ -1,47 +1,41 @@
 import React,{useState} from 'react';
 import {Text,Buttons,View,StyleSheet} from 'react-native';
 import SearchBar from '../components/searchBar';
-import google from '../API/google';
 import ResultList from '../components/resultList';
+import useResults from '../hook/useResult';
+
+
 
 const searchScreen = () => {
     const [term,setTerm] = useState('');    //Search Term State
-    const [results,setResult] = useState([]); //Result from API state
-    const [error,setErrorMessage] = useState('');
-    const searchAPI = async () => {     //async is used for all network requests
-        try {
-            const response = await google.get('/search', {
-              params: {                 //params required for the API
-                limit: 50,              //limiting search till 50 results
-                term: term,             //passing the search param
-                location: 'san jose'    //passing location param
-              }
-            });
-            setResult(response.data.businesses);
-            console.log(response.data.businesses);
-          } 
-          catch (err) {
-            setErrorMessage('Something went wrong');
-          }
-    }
+    const [searchAPI, results, error] = useResults({term});
+    
+    const filterByPrice = price => {
+        // price === '$' || '$$' || '$$$'
+        return results.filter(result => {
+          return result.price === price;
+        });
+      };   
 
     return <View>
         <SearchBar
-            term = {term}
-              termChange = {newTerm => setTerm(newTerm) }
-            onSubmit = {() => searchAPI()} //making API Result using a helper function 
+            term={term}
+            onTermChange={setTerm}
+            onTermSubmit={() => searchAPI(term)}
         />
+        {error ? <Text>{error}</Text> : null} 
+        
         <ResultList
             title = "Pocket Friendly"
-            results = {results}
+            results = {filterByPrice('$')}
         />
         <ResultList
             title = "Great"
-            results = {results}
+            results = {filterByPrice('$$')}
         />
         <ResultList
             title = "Rain money"
-            results = {results}
+            results = {filterByPrice('$$$')}
         />
     </View>
 };
